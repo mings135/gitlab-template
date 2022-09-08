@@ -1,0 +1,19 @@
+.remoteSSHVariables: &remoteSSHVariables
+  SSH_HOST: "192.168.1.13"
+  RUN_CMD: "/bin/ls"
+  SECRET_USER: sshuser
+  SECRET_PWD: ${SECRET_PWD_sshuser}
+  
+
+.remoteSSH:
+  variables: 
+    <<: *remoteSSHVariables
+  image: mings135/sshpass:latest
+  stage: deploy
+  tags:
+    - docker
+    - k8s
+    - kubernetes
+  script:
+    - echo "$SSH_HOST $RUN_CMD"
+    - sshpass -p ${SECRET_PWD} ssh -o StrictHostKeyChecking=no ${SECRET_USER}@${SSH_HOST} "${RUN_CMD}"

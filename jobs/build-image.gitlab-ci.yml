@@ -1,0 +1,31 @@
+.buildImageVariales: &buildImageVariales
+  IMAGE_REPO: "192.168.10.38/public/xf-forum"
+  IMAGE_VER: "latest"
+  BUILD_ARGS: ""
+  SECRET_USER: harbor
+  SECRET_PWD: ${SECRET_PWD_harbor}
+  
+.buildImageScript: &buildImageScript
+  - echo "$IMAGE_REPO $IMAGE_VER $BUILD_ARGS"
+  - docker login ${IMAGE_REPO} -u ${SECRET_USER} -p ${SECRET_PWD}
+  - docker build ${BUILD_ARGS} -t ${IMAGE_REPO}:${IMAGE_VER} .
+  - docker push ${IMAGE_REPO}:${IMAGE_VER}
+  - docker rmi ${IMAGE_REPO}:${IMAGE_VER}
+  - echo "IMAGE_REPO=${IMAGE_REPO}" > build.env
+  - echo "IMAGE_VER=${IMAGE_VER}" >> build.env
+
+
+.buildImage:
+  variables: 
+    <<: *buildImageVariales
+  image: docker:latest
+  stage: build
+  tags:
+    - docker
+    - k8s
+    - kubernetes
+  artifacts:
+    reports:
+      dotenv: build.env
+  script:
+    - *buildImageScript

@@ -1,0 +1,70 @@
+include:
+  - remote: 'https://mings135.github.io/gitlab-template/workflows/branch-tag.gitlab-ci.yml'
+  - remote: 'https://mings135.github.io/gitlab-template/jobs/build-image.gitlab-ci.yml'
+  - remote: 'https://mings135.github.io/gitlab-template/jobs/remote-ssh.gitlab-ci.yml'
+
+stages:
+  - build
+  - deploy
+  - rollout
+
+variables:
+  DEPLOYMENT_NAME: xf-forum
+  CONTAINER_NAME: xf-forum
+  POD_NAMESPACE: public
+
+.localK8sVariables: &branchK8sVariables
+  SSH_HOST: "192.168.10.100"
+  SECRET_USER: jenkins
+  SECRET_PWD: ${SECRET_PWD_100_jenkins}
+
+.lineK8sVariables: &tagK8sVariables
+  SSH_HOST: "192.168.10.100"
+  SECRET_USER: jenkins
+  SECRET_PWD: ${SECRET_PWD_100_jenkins}
+
+
+buildImage:
+  extends: .buildImage
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'master'
+      variables: 
+        IMAGE_REPO: "192.168.10.38/public/xf-forum"
+        IMAGE_VER: ${CI_COMMIT_SHORT_SHA}
+        BUILD_ARGS: "--build-arg BUILD_PARAM=:test"
+    - if: $CI_COMMIT_TAG =~ /^v/
+      variables:
+        IMAGE_REPO: "192.168.10.38/public/xf-forum"
+        IMAGE_VER: ${CI_COMMIT_TAG}
+
+
+deployK8s:
+  extends: .remoteSSH
+  variables:
+    RUN_CMD: 
+      | 
+      /usr/bin/kubectl -n ${POD_NAMESPACE} set image deployment ${DEPLOYMENT_NAME} ${CONTAINER_NAME}=${IMAGE_REPO}:${IMAGE_VER} \
+      && /usr/bin/kubectl -n ${POD_NAMESPACE} rollout status deployment/${DEPLOYMENT_NAME} --timeout=150s
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'master'
+      variables: 
+        <<: *branchK8sVariables
+    - if: $CI_COMMIT_TAG =~ /^v/
+      variables:
+        <<: *tagK8sVariables
+
+
+rolloutK8s:
+  extends: .remoteSSH
+  stage: rollout
+  variables:
+    RUN_CMD: /usr/bin/kubectl -n ${POD_NAMESPACE} rollout undo deployment/${DEPLOYMENT_NAME}
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'master'
+      when: on_failure
+      variables: 
+        <<: *branchK8sVariables
+    - if: $CI_COMMIT_TAG =~ /^v/
+      when: on_failure
+      variables:
+        <<: *tagK8sVariables
