@@ -25,6 +25,9 @@ variables:
 
 
 buildImage:
+  variables: 
+    SECRET_USER: harbor
+    SECRET_PWD: ${SECRET_PWD_harbor}
   extends: .buildImage
   rules:
     - if: $CI_COMMIT_BRANCH == 'master'
@@ -36,7 +39,6 @@ buildImage:
       variables:
         IMAGE_REPO: "192.168.10.38/public/xf-forum"
         IMAGE_VER: ${CI_COMMIT_TAG}
-
 
 deployK8s:
   extends: .remoteSSH
@@ -52,7 +54,6 @@ deployK8s:
     - if: $CI_COMMIT_TAG =~ /^v/
       variables:
         <<: *tagK8sVariables
-
 
 rolloutK8s:
   extends: .remoteSSH

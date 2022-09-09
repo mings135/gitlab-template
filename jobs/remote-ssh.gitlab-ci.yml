@@ -12,8 +12,6 @@
   stage: deploy
   tags:
     - docker
-    - k8s
-    - kubernetes
   script:
     - echo "$SSH_HOST $RUN_CMD"
     - sshpass -p ${SECRET_PWD} ssh -o StrictHostKeyChecking=no ${SECRET_USER}@${SSH_HOST} "${RUN_CMD}"
