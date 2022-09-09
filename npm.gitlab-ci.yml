@@ -58,6 +58,8 @@ deployK8s:
 rolloutK8s:
   extends: .remoteSSH
   stage: rollout
+  needs:
+    - deployK8s
   variables:
     RUN_CMD: /usr/bin/kubectl -n ${POD_NAMESPACE} rollout undo deployment/${DEPLOYMENT_NAME}
   rules:
