@@ -1,6 +1,6 @@
 include:
   - remote: 'https://mings135.github.io/gitlab-template/workflows/branch-tag.gitlab-ci.yml'
-  - remote: 'https://mings135.github.io/gitlab-template/jobs/build-image.gitlab-ci.yml'
+  - remote: 'https://mings135.github.io/gitlab-template/jobs/build-image-docker.gitlab-ci.yml'
   - remote: 'https://mings135.github.io/gitlab-template/jobs/remote-ssh.gitlab-ci.yml'
 
 stages:

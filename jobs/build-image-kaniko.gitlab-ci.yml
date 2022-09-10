@@ -1,0 +1,36 @@
+.buildImageVariales: &buildImageVariales
+  IMAGE_REPO: "192.168.10.38/public/xf-forum"
+  IMAGE_VER: "latest"
+  BUILD_ARGS: ""
+  SECRET_USER: harbor
+  SECRET_PWD: ${SECRET_PWD_harbor}
+  CONTEXT_PATH: ${CI_PROJECT_DIR}
+
+.buildImageScript: &buildImageScript
+  - echo "${IMAGE_REPO%%/*} $IMAGE_VER $BUILD_ARGS"
+  - mkdir -p /kaniko/.docker
+  - echo "{\"auths\":{\"${IMAGE_REPO%%/*}\":{\"auth\":\"$(printf "%s:%s" "${SECRET_USER}" "${SECRET_PWD}" | base64 | tr -d '\n')\"}}}" > /kaniko/.docker/config.json
+  - >-
+    /kaniko/executor
+    --context "${CONTEXT_PATH}"
+    --destination "${IMAGE_REPO}:${IMAGE_VER}"
+    --registry-mirror mirror.gcr.io
+    ${BUILD_ARGS}
+  - echo "IMAGE_REPO=${IMAGE_REPO}" > build.env
+  - echo "IMAGE_VER=${IMAGE_VER}" >> build.env
+
+
+.buildImage:
+  variables: 
+    <<: *buildImageVariales
+  image: 
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  stage: build
+  tags:
+    - k8s
+  artifacts:
+    reports:
+      dotenv: build.env
+  script:
+    - *buildImageScript
