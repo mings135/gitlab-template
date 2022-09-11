@@ -1,0 +1,26 @@
+.remoteKubectlVariables: &remoteKubectlVariables
+  K8S_CACERT: "${K8S_CACERT_100}"
+  K8S_TOKEN: "${K8S_TOKEN_100}"
+  K8S_SERVICEACCOUNT: 'jenkins'
+  K8S_CLUSTERNAME: 'kubernetes'
+  K8S_APISERVER: 'https://192.168.10.10:6443'
+
+
+# 支持 docker/k8s
+.remoteKubectl:
+  variables: 
+    <<: *remoteKubectlVariables
+  image: 
+    name: bitnami/kubectl:1.20.15
+    entrypoint: [""]
+  stage: deploy
+  tags:
+    - docker
+  before_script:
+    - echo "${K8S_CACERT}" > /tmp/ca.crt
+    - kubectl config set-cluster ${K8S_CLUSTERNAME} --server=${K8S_APISERVER} --certificate-authority=/tmp/ca.crt --embed-certs=true
+    - kubectl config set-credentials ${K8S_SERVICEACCOUNT} --token="${K8S_TOKEN}"
+    - kubectl config set-context aaa --cluster=${K8S_CLUSTERNAME} --user=${K8S_SERVICEACCOUNT}
+    - kubectl config use-context aaa
+  script:
+    - kubectl get pod

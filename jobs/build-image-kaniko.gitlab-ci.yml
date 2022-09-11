@@ -20,6 +20,7 @@
   - echo "IMAGE_VER=${IMAGE_VER}" >> build.env
 
 
+# 支持 docker/k8s，可能需要网络支持（目前没有找到代理镜像站配置方法）
 .buildImage:
   variables: 
     <<: *buildImageVariales
@@ -28,7 +29,7 @@
     entrypoint: [""]
   stage: build
   tags:
-    - k8s
+    - kubernetes
   artifacts:
     reports:
       dotenv: build.env
