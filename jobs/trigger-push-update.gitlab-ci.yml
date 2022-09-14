@@ -1,0 +1,33 @@
+# IMAGE_VER 为上游 trigger 设置的变量，在这里变成全局变量
+
+.updateYaml:
+  image:
+    name: mikefarah/yq:4.27.5
+    entrypoint: ['']
+  stage: update
+  script:
+    - yq -i '.metadata.name = strenv(IMAGE_VER)' aaa.yaml
+  artifacts:
+    expire_in: "1 day"
+    paths:
+      - "aaa.yaml"
+
+
+.pushUpdate:
+  variables:
+    SECRET_USER: user
+    SECRET_PWD: password
+  image: bitnami/git:2.37.3
+  stage: push
+  before_script:
+    - echo ${CI_PROJECT_URL} ${GITLAB_USER_LOGIN} ${GITLAB_USER_EMAIL} ${SECRET_USER}
+    - scheme=${CI_PROJECT_URL%%://*}
+    - url=${CI_PROJECT_URL#*://}
+    - git remote set-url origin ${scheme}://${SECRET_USER}:${SECRET_PWD}@${url}
+    - git remote -v
+    - git config --global user.name "${GITLAB_USER_LOGIN}" 
+    - git config --global user.email "${GITLAB_USER_EMAIL}"
+  script:
+    - git commit -am "cicd by upstream ${IMAGE_VER}"
+    - git checkout -B $CI_COMMIT_REF_NAME
+    - git push origin $CI_COMMIT_REF_NAME

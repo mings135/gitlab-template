@@ -1,0 +1,27 @@
+.triggerUpstream:
+  stage: deploy
+  inherit:
+    variables: false
+  variables: 
+    IMAGE_VER: ${CI_COMMIT_SHORT_SHA}
+  trigger: 
+    project: root/test
+    branch: $CI_COMMIT_BRANCH
+    strategy: depend
+
+
+.triggerByBranch:
+  extends: .triggerUpstream
+  trigger: 
+    branch: $CI_COMMIT_BRANCH
+  rules:
+    - if: $CI_COMMIT_BRANCH
+
+.triggerByTag:
+  extends: .triggerUpstream
+  trigger: 
+    branch: master
+  rules:
+    - if: $CI_COMMIT_TAG
+      variables: 
+        IMAGE_VER: ${CI_COMMIT_TAG}
