@@ -4,6 +4,7 @@
   BUILD_ARGS: ""
   SECRET_USER: harbor
   SECRET_PWD: ${SECRET_PWD_harbor}
+  DOCKER_HOST: "192.168.10.100"
   
 .buildImageScript: &buildImageScript
   - echo "$IMAGE_REPO $IMAGE_VER $BUILD_ARGS"
