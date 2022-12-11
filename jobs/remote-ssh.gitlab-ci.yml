@@ -1,10 +1,11 @@
+# 设置变量
 .remoteSSHVariables: &remoteSSHVariables
   SSH_HOST: "192.168.1.13"
   RUN_CMD: "/bin/ls"
   SECRET_USER: sshuser
   SECRET_PWD: ${SECRET_PWD_sshuser}
   
-
+# 远程调用 SSH 命令, 支持 docker/k8s
 .remoteSSH:
   variables: 
     <<: *remoteSSHVariables

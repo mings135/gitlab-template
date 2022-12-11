@@ -1,4 +1,5 @@
-.triggerUpstream:
+# 上游触发器, 触发下游 project, 并传递 IMAGE_VER 变量
+.triggerUpstreamBasic:
   stage: deploy
   inherit:
     variables: false
@@ -9,16 +10,17 @@
     branch: $CI_COMMIT_BRANCH
     strategy: depend
 
-
-.triggerByBranch:
-  extends: .triggerUpstream
+# 根据 branch 来调用触发器
+.triggerUpstreamBranch:
+  extends: .triggerUpstreamBasic
   trigger: 
     branch: $CI_COMMIT_BRANCH
   rules:
     - if: $CI_COMMIT_BRANCH
 
-.triggerByTag:
-  extends: .triggerUpstream
+# 根据 tag 来调用触发器
+.triggerUpstreamTag:
+  extends: .triggerUpstreamBasic
   trigger: 
     branch: master
   rules:

@@ -1,6 +1,5 @@
-# IMAGE_VER 为上游 trigger 设置的变量，在这里变成全局变量
-
-.updateYaml:
+# 更新文件内容, 并保存到工件中, IMAGE_VER 为上游变量（这里为全局变量）
+.updateFile:
   image:
     name: mikefarah/yq:4.27.5
     entrypoint: ['']
@@ -12,7 +11,7 @@
     paths:
       - "aaa.yaml"
 
-
+# 提交更新
 .pushUpdate:
   variables:
     SECRET_USER: user

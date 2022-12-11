@@ -1,3 +1,4 @@
+# npm 例子
 include:
   - remote: 'https://mings135.github.io/gitlab-template/workflows/branch-tag.gitlab-ci.yml'
   - remote: 'https://mings135.github.io/gitlab-template/jobs/build-image-docker.gitlab-ci.yml'

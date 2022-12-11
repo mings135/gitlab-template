@@ -1,3 +1,4 @@
+# 设置变量
 .buildImageVariales: &buildImageVariales
   IMAGE_REPO: "192.168.10.38/public/xf-forum"
   IMAGE_VER: "latest"
@@ -6,6 +7,7 @@
   SECRET_PWD: ${SECRET_PWD_harbor}
   CONTEXT_PATH: ${CI_PROJECT_DIR}
 
+# 执行命令, 保存信息到工件中
 .buildImageScript: &buildImageScript
   - echo "${IMAGE_REPO%%/*} $IMAGE_VER $BUILD_ARGS"
   - mkdir -p /kaniko/.docker
@@ -19,8 +21,7 @@
   - echo "IMAGE_REPO=${IMAGE_REPO}" > build.env
   - echo "IMAGE_VER=${IMAGE_VER}" >> build.env
 
-
-# 支持 docker/k8s，可能需要网络支持（目前没有找到代理镜像站配置方法）
+# 使用 google kaniko 构建镜像, 支持 docker/k8s，需要网络支持（目前没有找到代理镜像站配置方法）
 .buildImage:
   variables: 
     <<: *buildImageVariales

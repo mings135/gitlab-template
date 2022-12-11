@@ -1,3 +1,4 @@
+# 设置变量
 .buildImageVariales: &buildImageVariales
   IMAGE_REPO: "192.168.10.38/public/xf-forum"
   IMAGE_VER: "latest"
@@ -5,7 +6,8 @@
   SECRET_USER: harbor
   SECRET_PWD: ${SECRET_PWD_harbor}
   DOCKER_HOST: "192.168.10.100"
-  
+
+# 执行命令, 保存信息到工件中
 .buildImageScript: &buildImageScript
   - echo "$IMAGE_REPO $IMAGE_VER $BUILD_ARGS"
   - docker login ${IMAGE_REPO} -u ${SECRET_USER} -p ${SECRET_PWD}
@@ -15,8 +17,7 @@
   - echo "IMAGE_REPO=${IMAGE_REPO}" > build.env
   - echo "IMAGE_VER=${IMAGE_VER}" >> build.env
 
-
-# 支持 docker/k8s，k8s 需要在 [[runners]] 下配置 environment = ["DOCKER_HOST=tcp://192.168.10.10:2375"]
+# 使用远程 docker server 构建镜像, 支持 docker/k8s
 .buildImage:
   variables: 
     <<: *buildImageVariales
